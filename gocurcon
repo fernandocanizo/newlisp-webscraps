@@ -1,0 +1,202 @@
+#!/usr/bin/env newlisp
+;; Creation Date: Wed, 12 Jun 2013 20:57:51 -0300
+;; @author Fernando Canizo (aka conan) - http://conan.muriandre.com/
+;; @module GoogleCurrencyConverter
+;; @description Google currency converter scrapper
+;; @version 2013.06.13
+
+
+(context 'GoogleCurrencyConverter)
+
+(constant 'URL "http://www.google.com/finance/converter?")
+
+(setq currencies '(
+	("AED" "United Arab Emirates Dirham (AED)")
+	("ANG" "Netherlands Antillean Guilder (ANG)")
+	("ARS" "Argentine Peso (ARS)")
+	("AUD" "Australian Dollar (A$)")
+	("BDT" "Bangladeshi Taka (BDT)")
+	("BGN" "Bulgarian Lev (BGN)")
+	("BHD" "Bahraini Dinar (BHD)")
+	("BND" "Brunei Dollar (BND)")
+	("BOB" "Bolivian Boliviano (BOB)")
+	("BRL" "Brazilian Real (R$)")
+	("BWP" "Botswanan Pula (BWP)")
+	("CAD" "Canadian Dollar (CA$)")
+	("CHF" "Swiss Franc (CHF)")
+	("CLP" "Chilean Peso (CLP)")
+	("CNY" "Chinese Yuan (CN¥)")
+	("COP" "Colombian Peso (COP)")
+	("CRC" "Costa Rican Colón (CRC)")
+	("CZK" "Czech Republic Koruna (CZK)")
+	("DKK" "Danish Krone (DKK)")
+	("DOP" "Dominican Peso (DOP)")
+	("DZD" "Algerian Dinar (DZD)")
+	("EEK" "Estonian Kroon (EEK)")
+	("EGP" "Egyptian Pound (EGP)")
+	("EUR" "Euro (€)")
+	("FJD" "Fijian Dollar (FJD)")
+	("GBP" "British Pound Sterling (£)")
+	("HKD" "Hong Kong Dollar (HK$)")
+	("HNL" "Honduran Lempira (HNL)")
+	("HRK" "Croatian Kuna (HRK)")
+	("HUF" "Hungarian Forint (HUF)")
+	("IDR" "Indonesian Rupiah (IDR)")
+	("ILS" "Israeli New Sheqel (&#8362;)")
+	("INR" "Indian Rupee (Rs.)")
+	("JMD" "Jamaican Dollar (JMD)")
+	("JOD" "Jordanian Dinar (JOD)")
+	("JPY" "Japanese Yen (¥)")
+	("KES" "Kenyan Shilling (KES)")
+	("KRW" "South Korean Won (&#8361;)")
+	("KWD" "Kuwaiti Dinar (KWD)")
+	("KYD" "Cayman Islands Dollar (KYD)")
+	("KZT" "Kazakhstani Tenge (KZT)")
+	("LBP" "Lebanese Pound (LBP)")
+	("LKR" "Sri Lankan Rupee (LKR)")
+	("LTL" "Lithuanian Litas (LTL)")
+	("LVL" "Latvian Lats (LVL)")
+	("MAD" "Moroccan Dirham (MAD)")
+	("MDL" "Moldovan Leu (MDL)")
+	("MKD" "Macedonian Denar (MKD)")
+	("MUR" "Mauritian Rupee (MUR)")
+	("MVR" "Maldivian Rufiyaa (MVR)")
+	("MXN" "Mexican Peso (MX$)")
+	("MYR" "Malaysian Ringgit (MYR)")
+	("NAD" "Namibian Dollar (NAD)")
+	("NGN" "Nigerian Naira (NGN)")
+	("NIO" "Nicaraguan Córdoba (NIO)")
+	("NOK" "Norwegian Krone (NOK)")
+	("NPR" "Nepalese Rupee (NPR)")
+	("NZD" "New Zealand Dollar (NZ$)")
+	("OMR" "Omani Rial (OMR)")
+	("PEN" "Peruvian Nuevo Sol (PEN)")
+	("PGK" "Papua New Guinean Kina (PGK)")
+	("PHP" "Philippine Peso (Php)")
+	("PKR" "Pakistani Rupee (PKR)")
+	("PLN" "Polish Zloty (PLN)")
+	("PYG" "Paraguayan Guarani (PYG)")
+	("QAR" "Qatari Rial (QAR)")
+	("RON" "Romanian Leu (RON)")
+	("RSD" "Serbian Dinar (RSD)")
+	("RUB" "Russian Ruble (RUB)")
+	("SAR" "Saudi Riyal (SAR)")
+	("SCR" "Seychellois Rupee (SCR)")
+	("SEK" "Swedish Krona (SEK)")
+	("SGD" "Singapore Dollar (SGD)")
+	("SKK" "Slovak Koruna (SKK)")
+	("SLL" "Sierra Leonean Leone (SLL)")
+	("SVC" "Salvadoran Colón (SVC)")
+	("THB" "Thai Baht (&#3647;)")
+	("TND" "Tunisian Dinar (TND)")
+	("TRY" "Turkish Lira (TRY)")
+	("TTD" "Trinidad and Tobago Dollar (TTD)")
+	("TWD" "New Taiwan Dollar (NT$)")
+	("TZS" "Tanzanian Shilling (TZS)")
+	("UAH" "Ukrainian Hryvnia (UAH)")
+	("UGX" "Ugandan Shilling (UGX)")
+	("USD" "US Dollar ($)")
+	("UYU" "Uruguayan Peso (UYU)")
+	("UZS" "Uzbekistan Som (UZS)")
+	("VEF" "Venezuelan Bolívar (VEF)")
+	("VND" "Vietnamese Dong (&#8363;)")
+	("XOF" "CFA Franc BCEAO (CFA)")
+	("YER" "Yemeni Rial (YER)")
+	("ZAR" "South African Rand (ZAR)")
+	("ZMK" "Zambian Kwacha (1968-2012) (ZMK)")
+	("ZMW" "Zambian Kwacha (ZMW)")
+	))
+
+
+(define (basename path)
+	(last (parse path "/")))
+
+
+(define (usage)
+	(device 2)
+	(println "Usage:\n\n" programName " [from to ammount | list]")
+	(println
+[text]
+Where:
+	from is the 3 letter code for currency to convert from
+	to is the 3 letter code for currency to convert to
+	ammount is a floating point value with no more than 12 digits (google limit)
+
+Example:
+[/text]
+	)
+	(println programName " USD ARS 10")
+	(println "\nIf list is provided instead, script will show the list of valid currency codes.")
+	(exit))
+
+
+(define (show-currencies)
+	(println "Codes for available currencies:")
+	(dolist (item currencies)
+		(println (item 0) " : " (item 1))))
+
+
+(define (error-msg)
+	(device 2)
+	(let (msg "")
+		(doargs (arg)
+			(setq msg (append msg arg)))
+
+		(println msg))
+
+	(exit))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; main
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(setq programName (basename ($main-args 1)))
+(setq argCount (length $main-args))
+(setq myArgs (2 $main-args))
+
+(if (and (= argCount 3) (= "list" (myArgs 0)))
+	(begin
+		(show-currencies)
+		(exit))
+	; else
+	(if (!= argCount 5)
+		(usage)))
+
+
+;; variable names must start with capital letter for unify to work
+(bind (unify '(From To Ammount) myArgs))
+
+;; check parameters
+(setq From (upper-case From))
+(unless (assoc From currencies)
+	(error-msg {There's no currency code "} From {". See available codes with: } programName { list}))
+
+(setq To (upper-case To))
+(unless (assoc (upper-case To) currencies)
+	(error-msg {There's no currency code "} To {". See available codes with } programName { list}))
+
+(setq Ammount (float Ammount)) ; argument comes as string, convert it
+
+(unless (float? Ammount)
+	(error-msg {You must provide a valid ammount (integer or floating point number) to convert.}))
+
+;; build url
+(setq query (string URL "a=" Ammount "&from=" From "&to=" To))
+
+;; query google
+(setq result (get-url query))
+
+;; check result
+(if (nil? result)
+	(error-msg {Couldn't get conversion. Unknown error.})
+	; else
+	(if (starts-with "ERR:" result)
+		(error-msg result)))
+
+;; scrap result and show it
+(find-all {<span class=bld>(.+) (\w+)</span>} result)
+(println Ammount " " From " = " $1 " " To)
+
+
+(exit)
