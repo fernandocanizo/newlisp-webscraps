@@ -165,24 +165,24 @@ Example:
 
 
 ;; variable names must start with capital letter for unify to work
-(bind (unify '(From To Ammount) myArgs))
+(map set '(from to ammount) myArgs)
 
 ;; check parameters
-(setq From (upper-case From))
-(unless (assoc From currencies)
-	(error-msg {There's no currency code "} From {". See available codes with: } programName { list}))
+(setq from (upper-case from))
+(unless (assoc from currencies)
+	(error-msg {There's no currency code "} from {". See available codes with: } programName { list}))
 
-(setq To (upper-case To))
-(unless (assoc (upper-case To) currencies)
-	(error-msg {There's no currency code "} To {". See available codes with } programName { list}))
+(setq to (upper-case to))
+(unless (assoc (upper-case to) currencies)
+	(error-msg {There's no currency code "} to {". See available codes with } programName { list}))
 
-(setq Ammount (float Ammount)) ; argument comes as string, convert it
+(setq ammount (float ammount)) ; argument comes as string, convert it
 
-(unless (float? Ammount)
+(unless (float? ammount)
 	(error-msg {You must provide a valid ammount (integer or floating point number) to convert.}))
 
 ;; build url
-(setq query (string URL "a=" Ammount "&from=" From "&to=" To))
+(setq query (string URL "a=" ammount "&from=" from "&to=" to))
 
 ;; query google
 (setq result (get-url query))
@@ -196,7 +196,7 @@ Example:
 
 ;; scrap result and show it
 (find-all {<span class=bld>(.+) (\w+)</span>} result)
-(println Ammount " " From " = " $1 " " To)
+(println ammount " " from " = " $1 " " to)
 
 
 (exit)
